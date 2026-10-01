@@ -33,7 +33,9 @@ if not a.mesh_id: sys.exit('--delete 需要 --mesh-id')
 target = next((m for m in meshes if m['serviceMeshId'] == a.mesh_id), None)
 if target and (target.get('name','').startswith('default-service-mesh') or target.get('backingApplianceType') == 'NOT_APPLICABLE'):
     sys.exit('這是系統自動建的 self-site mesh(HCX Assisted vMotion),不要刪')
-print(f'\n!!! 即將 FORCE DELETE {a.mesh_id} on {a.host}'); 
+force = 'false' if a.no_force else 'true'
+print(f'
+!!! 即將 DELETE {a.mesh_id} on {a.host} (force={force})')
 if not a.yes and input('type YES: ') != 'YES': sys.exit(0)
 d = s.delete(f'{a.host}/hybridity/api/interconnect/serviceMesh/{a.mesh_id}', params={'force': force}, headers=h)
 print(d.status_code, d.text[:800])
