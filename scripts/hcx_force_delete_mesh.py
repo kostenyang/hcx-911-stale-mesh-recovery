@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """在 HCX Manager 本機(admin SSH)執行:列出 service mesh / appliance,必要時 force-delete 殘留 mesh。
   python3 hcx_force_delete_mesh.py --user 'svc_hcx@ESB.LOCAL'                                 # 只列出
-  python3 hcx_force_delete_mesh.py --user 'svc_hcx@ESB.LOCAL' --delete --mesh-id servicemesh-xxxx  # 強制刪
+  python3 hcx_force_delete_mesh.py --user 'svc_hcx@ESB.LOCAL' --delete --mesh-id servicemesh-xxxx           # 強制刪(force=true,預設)
+  … --delete --mesh-id servicemesh-xxxx --yes                                                      # 不問 YES
+  … --delete --mesh-id servicemesh-xxxx --no-force                                                 # 一般刪除(force=false)
 要在「發起 mesh 的那一站」跑(isInitiator=true 那邊,玉山測試對 = hcxt)。"""
 import argparse, getpass, json, sys, time, urllib3, requests
 urllib3.disable_warnings()
 p = argparse.ArgumentParser(); p.add_argument('--host', default='https://localhost'); p.add_argument('--user', required=True)
-p.add_argument('--mesh-id'); p.add_argument('--delete', action='store_true'); a = p.parse_args()
+p.add_argument('--mesh-id'); p.add_argument('--delete', action='store_true'); p.add_argument('--yes', action='store_true', help='skip the YES confirmation'); p.add_argument('--no-force', action='store_true', help='normal delete (force=false)'); a = p.parse_args()
 pw = getpass.getpass(f'Password for {a.user}: ')
 s = requests.Session(); s.verify = False
 r = s.post(f'{a.host}/hybridity/api/sessions', json={'username': a.user, 'password': pw}, headers={'Accept': 'application/json'})
